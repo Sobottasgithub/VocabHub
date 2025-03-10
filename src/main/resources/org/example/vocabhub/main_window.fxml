@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.vocabhub.Controller">
+   <children>
+      <MenuBar>
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem fx:id="uiMenuItem_openFile" mnemonicParsing="false" onAction="#onUiMenuItem_openFile" text="Open" />
+                  <MenuItem fx:id="uiMenuItem_closeFile" mnemonicParsing="false" onAction="#onUiMenuItem_closeFile" text="Close" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="uiMenuItem_saveVocab" mnemonicParsing="false" onAction="#onUiMenuItem_saveVocab" text="Save" />
+                  <MenuItem fx:id="uiMenuItem_exportVocab" mnemonicParsing="false" onAction="#onUiMenuItem_exportVocab" text="Export" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem fx:id="uiMenuItem_about" mnemonicParsing="false" onAction="#onUiMenuItem_about" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+        <tabs>
+          <Tab text="Learn">
+               <content>
+                  <GridPane>
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label fx:id="uiLabel_loadedFile" text="File: None" GridPane.valignment="TOP" />
+                        <Label fx:id="uiLabel_vocabPercentage" text="0/0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
+                        <Label fx:id="uiLabel_correctVocab" text="Correct Vocable" GridPane.halignment="LEFT" GridPane.rowIndex="3" GridPane.valignment="BOTTOM" />
+                        <Label fx:id="uiLabel_currentVocable" text="Vocable" GridPane.rowIndex="1" GridPane.valignment="BOTTOM" />
+                        <Button fx:id="uiButton_nextVocab" mnemonicParsing="false" onAction="#onUiButton_nextVocab" text="Next" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="BOTTOM" />
+                        <Button fx:id="uiButton_submitVocab" mnemonicParsing="false" onAction="#onUiButton_submitVocab" text="Submit" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.valignment="TOP" />
+                        <TextField fx:id="uiTextInput_vocab" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="TOP" />
+                     </children>
+                  </GridPane>
+               </content>
+          </Tab>
+          <Tab text="Add new">
+               <content>
+                  <GridPane>
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <TableView fx:id="uiTableView_newVocab" prefHeight="200.0" prefWidth="200.0" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                          <columns>
+                            <TableColumn fx:id="uiTableColumn_key" minWidth="300.0" prefWidth="300.0" text="Key" />
+                            <TableColumn fx:id="uiTableColumn_value" minWidth="300.0" prefWidth="300.0" text="Value" />
+                          </columns>
+                        </TableView>
+                        <HBox prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="1">
+                           <children>
+                              <TextField fx:id="uiTextInput_addVocabKey" HBox.hgrow="ALWAYS" />
+                              <TextField fx:id="uiTextInput_addVocabValue" HBox.hgrow="ALWAYS" />
+                              <Button fx:id="uiButton_addVocab" mnemonicParsing="false" onAction="#onUiButton_addVocab" text="Add" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </GridPane>
+               </content>
+          </Tab>
+            <Tab text="Statistics">
+               <content>
+                  <GridPane prefHeight="298.0" prefWidth="600.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints maxHeight="211.19998779296876" minHeight="10.0" prefHeight="207.9999755859375" vgrow="ALWAYS" />
+                        <RowConstraints maxHeight="106.4" minHeight="10.0" prefHeight="30.0" />
+                        <RowConstraints maxHeight="106.4" minHeight="10.0" prefHeight="30.0" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+                    </rowConstraints>
+                     <children>
+                        <BarChart fx:id="uiBarChart_mistakes" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                          <xAxis>
+                            <CategoryAxis fx:id="uiCategoryAxis_statisticsMistakes" prefHeight="20.0" prefWidth="540.0" side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis fx:id="uiNumberAxis_statisticsMistakes" label="Mistakes" side="LEFT" />
+                          </yAxis>
+                        </BarChart>
+                        <Label fx:id="uiLabel_rightWrongAverage" text="R/W: " GridPane.rowIndex="3" />
+                        <Label fx:id="uiLabel_vocabTrainedTotal" text="Total Vocable trained:" GridPane.rowIndex="1" />
+                        <Label fx:id="uiLabel_vocabWrongTotal" text="Total Vocable wrong:" GridPane.rowIndex="2" />
+                     </children>
+                  </GridPane>
+               </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</VBox>
