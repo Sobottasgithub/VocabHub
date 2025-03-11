@@ -164,6 +164,7 @@ public class Controller implements Initializable {
             uiTextInput_addVocabValue.clear();
             nextRandomVocable();
             uiMenuItem_exportVocab.setDisable(false);
+            setLearnUiItemsDisabled(false);
         } else {
             if(key.isEmpty()) {
                 uiTextInput_addVocabKey.setStyle("-fx-background-color: #ff000066;");
