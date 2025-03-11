@@ -16,7 +16,7 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
         LOGGER.log(Level.INFO, "Building App...");
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("main_window.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+        Scene scene = new Scene(fxmlLoader.load(), 800, 400);
         stage.setTitle("VocabHub");
         stage.setScene(scene);
         stage.show();
