@@ -60,6 +60,9 @@ public class Controller implements Initializable {
     StatisticsData statisticsData = new StatisticsData();
     XYChart.Series dataSeriesIssues = new XYChart.Series();
 
+    public Controller() throws IOException {
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         LOGGER.log(Level.INFO, "Initializing controller...");
@@ -69,14 +72,6 @@ public class Controller implements Initializable {
         uiTableColumn_value.setCellValueFactory(new PropertyValueFactory<>("value"));
 
         updateStatistics();
-
-        //SEVERE
-        //WARNING
-        //INFO
-        //CONFIG
-        //FINE
-        //FINER
-        //FINEST
     }
 
     @FXML

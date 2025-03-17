@@ -1,5 +1,8 @@
 package org.example.vocabhub.utils;
 
+import org.example.vocabhub.Main;
+import org.example.vocabhub.utils.Paths;
+
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -16,16 +19,38 @@ import java.util.logging.Logger;
 public class StatisticsData {
     private static final Logger LOGGER = Logger.getLogger(StatisticsData.class.getName());
 
+    Paths paths = new Paths();
+
     HashMap<String, Object> data;
     File absolutePath = new File(FileSystems.getDefault()
-            .getPath("src/main/java/org/example/vocabhub/storage/statistics.json")
+            .getPath(paths.getUserDataDir() + "/statistics.json")
             .normalize()
             .toAbsolutePath()
             .toString()
     );
 
-    public StatisticsData() {
+    public StatisticsData() throws IOException {
         LOGGER.log(Level.INFO, "Initializing Statistics...");
+
+        if (!absolutePath.exists()) {
+            File path = new File(paths.getUserDataDir());
+            path.mkdirs();
+            absolutePath.createNewFile();
+
+            HashMap<String, Object> dataTemplate;
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                dataTemplate = mapper.readValue(Main.class.getResource("statistics.json"), HashMap.class);
+            } catch (IOException e) {
+                dataTemplate = new HashMap<String, Object>();
+            }
+
+            mapper = new ObjectMapper();
+            ObjectWriter writer = mapper.writer(new DefaultPrettyPrinter());
+            try {
+                writer.writeValue(absolutePath, dataTemplate);
+            } catch (IOException _) {}
+        }
 
         ObjectMapper mapper = new ObjectMapper();
         try {
