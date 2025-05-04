@@ -4,7 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.HashMap;
 
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.BarChart;
@@ -19,6 +23,7 @@ import javafx.scene.chart.XYChart;
 import org.example.vocabhub.utils.Data;
 import org.example.vocabhub.utils.StatisticsData;
 import org.example.vocabhub.utils.VocableTableViewItem;
+
 
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -35,6 +40,7 @@ public class Controller implements Initializable {
     @FXML private Label uiLabel_vocabPercentage;
     @FXML private Label uiLabel_currentVocable;
     @FXML private Label uiLabel_correctVocab;
+    @FXML private Label uiLabel_languages;
     @FXML private Button uiButton_submitVocab;
     @FXML private Button uiButton_nextVocab;
     @FXML private TextField uiTextInput_vocab;
@@ -44,6 +50,8 @@ public class Controller implements Initializable {
     @FXML private TableView<VocableTableViewItem> uiTableView_newVocab;
     @FXML private TableColumn uiTableColumn_key;
     @FXML private TableColumn uiTableColumn_value;
+    @FXML private ChoiceBox uiChoiceBox_translation;
+    @FXML private ChoiceBox uiChoiceBox_baseLanguage;
     // statistics
     @FXML private BarChart uiBarChart_mistakes;
     @FXML private CategoryAxis uiCategoryAxis_statisticsMistakes;
@@ -51,7 +59,6 @@ public class Controller implements Initializable {
     @FXML private Label uiLabel_vocabTrainedTotal;
     @FXML private Label uiLabel_vocabWrongTotal;
     @FXML private Label uiLabel_rightWrongAverage;
-
 
     int mistakes = 0;
     int randomVocabIndex = -1;
@@ -67,6 +74,7 @@ public class Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         LOGGER.log(Level.INFO, "Initializing controller...");
         closeFile();
+        initializeChoiceBoxes();
 
         uiTableColumn_key.setCellValueFactory(new PropertyValueFactory<>("key"));
         uiTableColumn_value.setCellValueFactory(new PropertyValueFactory<>("value"));
@@ -87,7 +95,13 @@ public class Controller implements Initializable {
             closeFile();
             String selectedFileName = selectedFile.toString();
             uiLabel_loadedFile.setText("Loaded File: " + selectedFileName);
-            data = new Data(selectedFileName);
+            data = new Data();
+
+            HashMap<String, String> languages = new HashMap<String, String>();
+            languages = data.openFile(selectedFileName);
+
+            String baseLanguage = (String) languages.keySet().toArray()[0];
+            setAllLanguages(baseLanguage, languages.get(baseLanguage));
         }
 
         // Start vocab question cycle
@@ -173,7 +187,7 @@ public class Controller implements Initializable {
     @FXML
     protected void onUiMenuItem_saveVocab() {
         LOGGER.log(Level.INFO, "Save vocable...");
-        data.saveToFile("");
+        data.saveToFile("", (String) uiChoiceBox_baseLanguage.getValue(), (String) uiChoiceBox_translation.getValue());
     }
 
     @FXML
@@ -192,7 +206,7 @@ public class Controller implements Initializable {
                 LOGGER.log(Level.INFO, "File already exists!");
             }
             LOGGER.log(Level.INFO, "Writing to file...");
-            data.saveToFile(selectedFile.toString());
+            data.saveToFile(selectedFile.toString(), (String) uiChoiceBox_baseLanguage.getValue(), (String) uiChoiceBox_translation.getValue());
         } catch (IOException error) {
             LOGGER.log(Level.SEVERE, "An error has occurred while creating the file: " + selectedFile.toString());
             LOGGER.log(Level.SEVERE, "STACKTRACE: \n" + error);
@@ -200,12 +214,59 @@ public class Controller implements Initializable {
     }
 
     @FXML protected void onUiMenuItem_about() {
+        LOGGER.log(Level.INFO, "Open about form...");
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("VocabHub ~ ABOUT");
         alert.setHeaderText("This app was made by Patrick Schulze");
         alert.setContentText("For further Information contact me at: Patrick.Schulze.ofp@gmail.com");
 
         alert.showAndWait();
+    }
+
+    public void initializeChoiceBoxes() {
+        LOGGER.log(Level.INFO, "Initialize choiceboxes...");
+        List<String> languages = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            languages = mapper.readValue(Main.class.getResource("languages.json"), List.class);
+        } catch (DatabindException e) {
+        } catch (StreamReadException e) {
+        } catch (IOException e) {}
+
+        for(int index = 0; index < languages.size(); index++) {
+            uiChoiceBox_baseLanguage.getItems().add(languages.get(index));
+            uiChoiceBox_translation.getItems().add(languages.get(index));
+        }
+
+        uiChoiceBox_baseLanguage.setOnAction((event) -> {onLanguageChoiceBoxChanged();});
+        uiChoiceBox_translation.setOnAction((event) -> {onLanguageChoiceBoxChanged();});
+    }
+
+    public void onLanguageChoiceBoxChanged() {
+        LOGGER.log(Level.INFO, "Language choicebox changed...");
+        setAllLanguages((String) uiChoiceBox_baseLanguage.getValue(), (String) uiChoiceBox_translation.getValue());
+    }
+
+    public void setAllLanguages(String baseLanguage, String translation) {
+        LOGGER.log(Level.INFO, "Set all languages correctly...");
+        if(baseLanguage.length() != 0 || translation.length() != 0) {
+            uiLabel_languages.setText(baseLanguage + " ➡ " + translation);
+            uiTableColumn_key.setText(baseLanguage);
+            uiTableColumn_value.setText(translation);
+            uiChoiceBox_baseLanguage.setValue(baseLanguage);
+            uiChoiceBox_translation.setValue(translation);
+        } else {
+            clearAllLanguages();
+        }
+    }
+
+    public void clearAllLanguages() {
+        LOGGER.log(Level.INFO, "Clear all language ui items...");
+        uiLabel_languages.setText("");
+        uiTableColumn_key.setText("Key");
+        uiTableColumn_value.setText("Value");
+        uiChoiceBox_baseLanguage.setValue("");
+        uiChoiceBox_translation.setValue("");
     }
 
     public void nextRandomVocable() {
@@ -249,6 +310,8 @@ public class Controller implements Initializable {
 
         uiTextInput_vocab.clear();
         uiTableView_newVocab.getItems().clear();
+
+        clearAllLanguages();
     }
 
     public void addNewVocableLine(String key, String value) {

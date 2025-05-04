@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,12 +25,12 @@ public class Data {
     }
 
     public Data(String filePath) {
-        this.filePath = filePath;
         openFile(filePath);
     }
 
-    public void openFile(String filePath) {
+    public HashMap<String, String> openFile(String filePath) {
         LOGGER.log(Level.INFO, "Initializing Data...");
+        this.filePath = filePath;
         data = new HashMap<>();
         File jsonFile = new File(filePath.toString());
         ObjectMapper mapper = new ObjectMapper();
@@ -42,6 +43,12 @@ public class Data {
         } catch (IOException e) {
             data = new HashMap<String, String>();
         }
+
+        // get languages from file
+        HashMap<String, String> language = new HashMap<>();
+        language.put((String) data.keySet().toArray()[data.size() - 1], (String) data.get(data.keySet().toArray()[data.size() - 1]));
+        data.remove((String) data.keySet().toArray()[data.size() - 1]);
+        return language;
     }
 
     public int getSize() {
@@ -64,11 +71,13 @@ public class Data {
         return data.get(key);
     }
 
-    public void saveToFile(String filePath) {
+    public void saveToFile(String filePath, String language, String translation) {
         LOGGER.log(Level.INFO, "Storing data to file...");
         if(filePath.isEmpty()) {
             filePath = this.filePath;
         }
+
+        data.put(language, translation);
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectWriter writer = mapper.writer(new DefaultPrettyPrinter());
