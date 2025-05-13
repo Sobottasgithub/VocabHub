@@ -21,6 +21,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.chart.XYChart;
 
 import org.example.vocabhub.utils.Data;
+import org.example.vocabhub.utils.LanguageAutoUpdater;
 import org.example.vocabhub.utils.StatisticsData;
 import org.example.vocabhub.utils.VocableTableViewItem;
 
@@ -73,6 +74,7 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         LOGGER.log(Level.INFO, "Initializing controller...");
+
         closeFile();
         initializeChoiceBoxes();
 

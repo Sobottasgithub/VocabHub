@@ -12,8 +12,9 @@ module org.example.vocabhub {
 
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.core;
-    requires java.logging;
     requires java.desktop;
+    requires org.jsoup;
+    requires java.sql;
 
     opens org.example.vocabhub to javafx.fxml;
     exports org.example.vocabhub;
