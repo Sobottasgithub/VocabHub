@@ -14,6 +14,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * can be deleted
+ */
+@Deprecated
 public class Data {
     private static final Logger LOGGER = Logger.getLogger(Data.class.getName());
 
