@@ -20,11 +20,12 @@ import javafx.stage.FileChooser;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.chart.XYChart;
 
-import org.example.vocabhub.trainer.CheckVocabularyAnswer;
-import org.example.vocabhub.trainer.VocabularyPair;
-import org.example.vocabhub.trainer.VocabularySet;
+import org.example.vocabhub.trainer.*;
 import org.example.vocabhub.persistence.PersistentFileService;
-import org.example.vocabhub.trainer.VocabularyTrainer;
+import org.example.vocabhub.trainer.model.CheckVocabularyAnswer;
+import org.example.vocabhub.trainer.model.VocabularyPair;
+import org.example.vocabhub.trainer.model.VocabularySet;
+import org.example.vocabhub.trainer.strategies.RandomSelectionStrategy;
 import org.example.vocabhub.utils.StatisticsData;
 import org.example.vocabhub.utils.VocableTableViewItem;
 
@@ -101,7 +102,7 @@ public class Controller implements Initializable {
             String selectedFileName = selectedFile.toString();
             uiLabel_loadedFile.setText("Loaded File: " + selectedFileName);
             vocabularies = this.fileService.loadFromFile(selectedFile);
-            vocabularyTrainer = new VocabularyTrainer(vocabularies);
+            vocabularyTrainer = new VocabularyTrainer(vocabularies, new RandomSelectionStrategy());
             setAllLanguages(vocabularies.getSourceLanguage(), vocabularies.getTargetLanguage());
             for( VocabularyPair pair : vocabularies.getVocabularies()){
                 addNewVocableLine(pair.getSource(), pair.getTarget());
@@ -137,10 +138,10 @@ public class Controller implements Initializable {
     }
 
     private void takeNextVocabulary() {
-        if (vocabularyTrainer.currentVocabularyPair().isPresent()) {
+        if (vocabularyTrainer.currentVocabulary().isPresent()) {
             LOGGER.log(Level.INFO, "take next vocabulary...");
             uiTextInput_vocab.clear();
-            uiLabel_currentVocable.setText(vocabularyTrainer.currentVocabularyPair().get().getSource());
+            uiLabel_currentVocable.setText(vocabularyTrainer.currentVocabulary().get());
             uiLabel_correctVocab.setText("");
             setLearnUiItemsDisabled(false);
         }
