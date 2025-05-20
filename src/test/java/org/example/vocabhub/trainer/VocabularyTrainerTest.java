@@ -1,5 +1,9 @@
 package org.example.vocabhub.trainer;
 
+import org.example.vocabhub.trainer.model.CheckVocabularyAnswer;
+import org.example.vocabhub.trainer.model.VocabularyPair;
+import org.example.vocabhub.trainer.model.VocabularySet;
+import org.example.vocabhub.trainer.strategies.RandomSelectionStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +26,7 @@ class VocabularyTrainerTest {
         vocabularySet.addVocabularyPair(pair2);
         
         // Initialize the trainer with the created set
-        trainer = new VocabularyTrainer(vocabularySet);
+        trainer = new VocabularyTrainer(vocabularySet, new RandomSelectionStrategy());
     }
     
     @Test

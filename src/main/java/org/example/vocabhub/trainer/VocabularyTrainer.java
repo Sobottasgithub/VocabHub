@@ -1,28 +1,32 @@
 package org.example.vocabhub.trainer;
 
+import org.example.vocabhub.trainer.model.CheckVocabularyAnswer;
+import org.example.vocabhub.trainer.model.VocabularyPair;
+import org.example.vocabhub.trainer.model.VocabularySet;
+import org.example.vocabhub.trainer.strategies.SelectionStrategy;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 public class VocabularyTrainer {
 
-    private final Random randomIndexer = new Random();
     private final VocabularySet vocabularySet;
     private final List<VocabularyPair> vocabularyPairs;
     private final List<VocabularyPair> learnedVocabularies = new ArrayList<>();
     private final List<VocabularyPair> wrongVocabularies = new ArrayList<>();
+    private final SelectionStrategy selectionStrategy;
     private Optional<VocabularyPair> currentVocabularyPair;
-    private int currentVocabularyIndex;
 
-    public VocabularyTrainer(VocabularySet vocabularySet) {
+    public VocabularyTrainer(VocabularySet vocabularySet, SelectionStrategy strategy) {
         this.vocabularySet = vocabularySet;
         this.vocabularyPairs = new ArrayList<>(vocabularySet.getVocabularies());
+        this.selectionStrategy = strategy;
         pullNextVocabulary();
     }
 
-    public Optional<VocabularyPair> currentVocabularyPair() {
-        return currentVocabularyPair;
+    public Optional<String> currentVocabulary() {
+        return currentVocabularyPair.map(VocabularyPair::getSource);
     }
 
     public CheckVocabularyAnswer checkVocabulary(String answer) {
@@ -65,25 +69,20 @@ public class VocabularyTrainer {
 
     private void handleSuccess() {
         if (currentVocabularyPair.isPresent()) {
-            learnedVocabularies.add(currentVocabularyPair.get());
-            vocabularyPairs.remove(currentVocabularyIndex);
+            VocabularyPair pair = currentVocabularyPair.get();
+            learnedVocabularies.add(pair);
+            vocabularyPairs.remove(pair);
         }
-
     }
 
     private void handleFailure() {
         if (currentVocabularyPair.isPresent()) {
             wrongVocabularies.add(currentVocabularyPair.get());
-            vocabularyPairs.remove(currentVocabularyIndex);
+            vocabularyPairs.remove(currentVocabularyPair.get());
         }
     }
 
     private void pullNextVocabulary() {
-        if (getRemainingSize() > 0) {
-            currentVocabularyIndex = randomIndexer.nextInt(vocabularyPairs.size());
-            currentVocabularyPair = Optional.of(vocabularyPairs.get(currentVocabularyIndex));
-        } else {
-            currentVocabularyPair = Optional.empty();
-        }
+        currentVocabularyPair = selectionStrategy.getNexVocabulary(List.copyOf(vocabularyPairs));
     }
 }
