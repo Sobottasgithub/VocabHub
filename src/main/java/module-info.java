@@ -19,5 +19,10 @@ module org.example.vocabhub {
     opens org.example.vocabhub to javafx.fxml;
     exports org.example.vocabhub;
     exports org.example.vocabhub.utils;
+    exports org.example.vocabhub.trainer;
+    exports org.example.vocabhub.persistence;
     opens org.example.vocabhub.utils to javafx.fxml;
+    exports org.example.vocabhub.trainer.strategies;
+    exports org.example.vocabhub.trainer.model;
+
 }
