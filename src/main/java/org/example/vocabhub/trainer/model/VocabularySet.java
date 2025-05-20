@@ -1,4 +1,4 @@
-package org.example.vocabhub.trainer;
+package org.example.vocabhub.trainer.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

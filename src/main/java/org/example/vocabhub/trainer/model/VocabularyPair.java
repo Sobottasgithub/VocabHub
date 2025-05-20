@@ -1,4 +1,4 @@
-package org.example.vocabhub.trainer;
+package org.example.vocabhub.trainer.model;
 
 import java.util.Objects;
 
@@ -6,9 +6,7 @@ public class VocabularyPair {
     private String source;
     private String target;
 
-    public VocabularyPair() {
-
-    }
+    public VocabularyPair() {}
 
     public VocabularyPair(String source, String target) {
         this.source = source;

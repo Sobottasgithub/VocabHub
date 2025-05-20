@@ -1,4 +1,4 @@
-package org.example.vocabhub.trainer;
+package org.example.vocabhub.trainer.model;
 
 public class CheckVocabularyAnswer {
     private final boolean correct;
