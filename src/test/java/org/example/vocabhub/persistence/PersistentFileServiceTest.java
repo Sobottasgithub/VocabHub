@@ -1,7 +1,7 @@
 package org.example.vocabhub.persistence;
 
-import org.example.vocabhub.trainer.VocabularyPair;
-import org.example.vocabhub.trainer.VocabularySet;
+import org.example.vocabhub.trainer.model.VocabularyPair;
+import org.example.vocabhub.trainer.model.VocabularySet;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

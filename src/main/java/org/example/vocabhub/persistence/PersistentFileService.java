@@ -2,7 +2,7 @@ package org.example.vocabhub.persistence;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.example.vocabhub.trainer.VocabularySet;
+import org.example.vocabhub.trainer.model.VocabularySet;
 
 import java.io.File;
 import java.io.IOException;
