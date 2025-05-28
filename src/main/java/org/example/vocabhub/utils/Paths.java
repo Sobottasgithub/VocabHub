@@ -27,15 +27,15 @@ public class Paths {
     }
 
     public String getUserDataDir() {
-        String os = getOs();
+        String os = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
         String baseDirectory = System.getProperty("user.home");
-        if (os.matches("mac")) {
+        if (os.contains("mac") || os.contains("darwin")) {
             return baseDirectory + "/Library/Application Support/VocabHub";
         }
-        if (os.matches("windows")) {
+        if (os.contains("win")) {
             return baseDirectory + "/AppData/Local/Patrick-Schulze/VocabHub";
         }
-        if (os.matches("linux")) {
+        if (os.contains("nux")) {
             return baseDirectory + "/.local/share/VocabHub";
         }
         return "";

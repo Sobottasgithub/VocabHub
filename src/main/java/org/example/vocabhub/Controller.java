@@ -3,6 +3,8 @@ package org.example.vocabhub;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.HashMap;
 
@@ -20,13 +22,15 @@ import javafx.stage.FileChooser;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.chart.XYChart;
 
+import org.example.vocabhub.persistence.AppdataPersistentFileService;
+import org.example.vocabhub.statistics.StatisticData;
+import org.example.vocabhub.statistics.StatisticDataBinder;
 import org.example.vocabhub.trainer.*;
 import org.example.vocabhub.persistence.PersistentFileService;
 import org.example.vocabhub.trainer.model.CheckVocabularyAnswer;
 import org.example.vocabhub.trainer.model.VocabularyPair;
 import org.example.vocabhub.trainer.model.VocabularySet;
 import org.example.vocabhub.trainer.strategies.RandomSelectionStrategy;
-import org.example.vocabhub.utils.StatisticsData;
 import org.example.vocabhub.utils.VocableTableViewItem;
 
 
@@ -35,6 +39,8 @@ import java.util.logging.Level;
 
 public class Controller implements Initializable {
     private static final Logger LOGGER = Logger.getLogger(Controller.class.getName());
+    private final AppdataPersistentFileService appdataPersistentFileService = new AppdataPersistentFileService();
+    private StatisticDataBinder statisticDataBinder = new StatisticDataBinder();
 
     // general
     @FXML private MenuItem uiMenuItem_closeFile;
@@ -65,13 +71,13 @@ public class Controller implements Initializable {
     @FXML private Label uiLabel_vocabWrongTotal;
     @FXML private Label uiLabel_rightWrongAverage;
 
-    StatisticsData statisticsData = new StatisticsData();
     XYChart.Series dataSeriesIssues = new XYChart.Series();
 
     private PersistentFileService fileService = new PersistentFileService();
     private VocabularySet vocabularies = new VocabularySet();
     private VocabularyTrainer vocabularyTrainer;
     private File selectedFile;
+
     public Controller() throws IOException {
     }
 
@@ -86,6 +92,10 @@ public class Controller implements Initializable {
         uiTableColumn_value.setCellValueFactory(new PropertyValueFactory<>("value"));
 
         updateStatistics();
+
+        LOGGER.log(Level.INFO, "Initializing statisticDataBinder...");
+        Optional<StatisticDataBinder> statisticDataBinderOptional = this.appdataPersistentFileService.loadStatisticsDataBinder();
+        statisticDataBinderOptional.ifPresent(dataBinder -> this.statisticDataBinder = dataBinder);
     }
 
     @FXML
@@ -276,8 +286,12 @@ public class Controller implements Initializable {
             uiLabel_currentVocable.setText("");
             uiLabel_correctVocab.setText("Congrats! You're done! You made " + vocabularyTrainer.getFailedSize() + " mistake(s)!");
             uiLabel_vocabPercentage.setText("0/0");
-            statisticsData.addMistakeWithDate(vocabularyTrainer.getFailedSize());
-            statisticsData.addTrainedCount(vocabularyTrainer.getLearnedSize());
+
+            this.statisticDataBinder.addData(new StatisticData(
+                    Optional.of(vocabularyTrainer.getFailedSize()),
+                    Optional.of(vocabularyTrainer.getLearnedSize()))
+            );
+            this.appdataPersistentFileService.saveStatisticDataBinder(this.statisticDataBinder);
             updateStatistics();
         }
     }
@@ -288,7 +302,6 @@ public class Controller implements Initializable {
         uiLabel_vocabPercentage.setText("0/0");
         uiLabel_currentVocable.setText("");
         uiLabel_correctVocab.setText("");
-
 
         uiButton_nextVocab.setVisible(false);
         uiMenuItem_closeFile.setDisable(false);
@@ -327,9 +340,8 @@ public class Controller implements Initializable {
 
     public void updateStatistics() {
         LOGGER.log(Level.INFO, "Update statistics...");
-        int totalTrained =  statisticsData.getTrainedCount();
-        int totalMistakes = statisticsData.getTotalMistakes();
-        HashMap<String, Integer> mistakesWithDate = statisticsData.getMistakesWithDate();
+        int totalTrained =  this.statisticDataBinder.getTotalCorrectCount();
+        int totalMistakes = this.statisticDataBinder.getTotalMistakeCount();
 
         uiLabel_vocabTrainedTotal.setText("Total Vocable trained: " + totalTrained);
         uiLabel_vocabWrongTotal.setText("Total Vocable wrong: " + totalMistakes);
@@ -341,9 +353,17 @@ public class Controller implements Initializable {
 
         dataSeriesIssues.getData().clear();
         uiBarChart_mistakes.setLegendVisible(false);
-        for(int index = 0; index < mistakesWithDate.size(); index++) {
-            String date = mistakesWithDate.keySet().toArray()[index].toString();
-            dataSeriesIssues.getData().add(new XYChart.Data(date, mistakesWithDate.get(date)));
+
+        final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ENGLISH);
+        ArrayList<LocalDate> dates = this.statisticDataBinder.getDates();
+        for(int index = 0; index < dates.size(); index++) {
+            dataSeriesIssues.getData().add(
+                    new XYChart.Data(
+                            dateTimeFormatter.format(dates.get(index)),
+                            this.statisticDataBinder.getMistakeCountByDate(dates.get(index)
+                            )
+                    )
+            );
         }
         uiBarChart_mistakes.getData().add(dataSeriesIssues);
     }
