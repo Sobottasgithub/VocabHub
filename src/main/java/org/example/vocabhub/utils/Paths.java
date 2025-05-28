@@ -35,7 +35,7 @@ public class Paths {
         if (os.contains("win")) {
             return baseDirectory + "/AppData/Local/Patrick-Schulze/VocabHub";
         }
-        if (os.contains("nux")) {
+        if (os.contains("linux")) {
             return baseDirectory + "/.local/share/VocabHub";
         }
         return "";

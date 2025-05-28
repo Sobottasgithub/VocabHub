@@ -18,7 +18,7 @@ public class AppdataPersistentFileService {
         this.objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-        this.filePath = new File(String.join(getUserDataDir(), "/statistics.json"));
+        this.filePath = new File(getUserDataDir() + "/statistics.json");
     }
 
     public Optional<StatisticDataBinder> loadStatisticsDataBinder() {
@@ -55,7 +55,7 @@ public class AppdataPersistentFileService {
         if (os.contains("win")) {
             return baseDirectory + "/AppData/Local/Patrick-Schulze/VocabHub";
         }
-        if (os.contains("nux")) {
+        if (os.contains("linux")) {
             return baseDirectory + "/.local/share/Patrick-Schulze/VocabHub";
         }
         return "";

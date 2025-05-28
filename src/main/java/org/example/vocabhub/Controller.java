@@ -293,6 +293,8 @@ public class Controller implements Initializable {
             );
             this.appdataPersistentFileService.saveStatisticDataBinder(this.statisticDataBinder);
             updateStatistics();
+
+            uiButton_nextVocab.setVisible(true);
         }
     }
 
