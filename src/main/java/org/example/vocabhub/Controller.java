@@ -356,12 +356,11 @@ public class Controller implements Initializable {
         dataSeriesIssues.getData().clear();
         uiBarChart_mistakes.setLegendVisible(false);
 
-        final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ENGLISH);
-        ArrayList<LocalDate> dates = this.statisticDataBinder.getDates();
+        ArrayList<String> dates = this.statisticDataBinder.getDates();
         for(int index = 0; index < dates.size(); index++) {
             dataSeriesIssues.getData().add(
                     new XYChart.Data(
-                            dateTimeFormatter.format(dates.get(index)),
+                            dates.get(index),
                             this.statisticDataBinder.getMistakeCountByDate(dates.get(index)
                             )
                     )

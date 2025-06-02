@@ -36,7 +36,7 @@ public class AppdataPersistentFileService {
     public void saveStatisticDataBinder(StatisticDataBinder statisticDataBinder)  {
         try {
             if(!this.filePath.isFile()) {
-                this.filePath.createNewFile();
+                this.filePath.getParentFile().mkdirs();
             }
 
             this.objectMapper.writeValue(this.filePath, statisticDataBinder);

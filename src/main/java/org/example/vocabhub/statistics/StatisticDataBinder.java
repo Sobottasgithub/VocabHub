@@ -12,9 +12,7 @@ public class StatisticDataBinder {
 
     private final List<StatisticData> statisticDataCollection = new ArrayList<>();
 
-    public StatisticDataBinder() {
-
-    }
+    public StatisticDataBinder() {}
 
     public int getTotalMistakeCount() {
         return getTotalCountTemplate(StatisticType.MISTAKE);
@@ -24,11 +22,16 @@ public class StatisticDataBinder {
         return getTotalCountTemplate(StatisticType.CORRECT);
     }
 
-    public int getMistakeCountByDate(LocalDate date) {
-        return getCountByDate(StatisticType.MISTAKE, date);
+    public int getMistakeCountByDate(String date) {
+        for (StatisticData statistic: statisticDataCollection) {
+            if(statistic.getDate() == date) {
+                return statistic.getMistakeCount();
+            }
+        }
+        return 0;
     }
 
-    public int getCorrectCountByDate(LocalDate date) {
+    public int getCorrectCountByDate(String date) {
         return getCountByDate(StatisticType.CORRECT, date);
     }
 
@@ -36,8 +39,8 @@ public class StatisticDataBinder {
         return statisticDataCollection.size();
     }
 
-    public ArrayList<LocalDate> getDates() {
-        ArrayList<LocalDate> dates = new ArrayList<>();
+    public ArrayList<String> getDates() {
+        ArrayList<String> dates = new ArrayList<>();
         for (StatisticData statistic: statisticDataCollection) {
             dates.add(statistic.getDate());
         }
@@ -62,7 +65,7 @@ public class StatisticDataBinder {
         return totalCount;
     }
 
-    private int getCountByDate(StatisticType type, LocalDate date) {
+    private int getCountByDate(StatisticType type, String date) {
         for (StatisticData statistic: statisticDataCollection) {
             if(statistic.getDate() == date) {
                 if(type == StatisticType.CORRECT) {

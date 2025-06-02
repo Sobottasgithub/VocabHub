@@ -1,12 +1,16 @@
 package org.example.vocabhub.statistics;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Optional;
 import java.time.LocalDate;
 
 public class StatisticData {
+    final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ENGLISH);
+
     private int mistakeCount = 0;
     private int correctCount = 0;
-    private LocalDate date = LocalDate.now();
+    private String date = dateTimeFormatter.format(LocalDate.now());
 
     public StatisticData() {}
 
@@ -31,7 +35,7 @@ public class StatisticData {
         return this.correctCount;
     }
 
-    public LocalDate getDate() {
+    public String getDate() {
         return this.date;
     }
 }
