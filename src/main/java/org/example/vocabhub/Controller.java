@@ -168,7 +168,13 @@ public class Controller implements Initializable {
 
     @FXML
     protected void onUiButton_nextVocab() {
-       takeNextVocabulary();
+        if(vocabularyTrainer.finished()) {
+            vocabularyTrainer = new VocabularyTrainer(vocabularies, new RandomSelectionStrategy());
+            uiLabel_vocabPercentage.setText(vocabularyTrainer.getLearnedSize() + "/" + vocabularyTrainer.getOverallSize());
+            takeNextVocabulary();
+        } else {
+            takeNextVocabulary();
+        }
     }
 
     @FXML
@@ -353,7 +359,8 @@ public class Controller implements Initializable {
             uiLabel_rightWrongAverage.setText("R/W: " + 1);
         }
 
-        dataSeriesIssues.getData().clear();
+        //dataSeriesIssues.getData().removeAll();
+        uiBarChart_mistakes.getData().clear();
         uiBarChart_mistakes.setLegendVisible(false);
 
         ArrayList<String> dates = this.statisticDataBinder.getDates();
