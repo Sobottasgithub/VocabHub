@@ -1,33 +1,40 @@
 package org.example.vocabhub.persistence;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.example.vocabhub.trainer.model.VocabularySet;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Optional;
 
-public class PersistentFileService {
+public class PersistentFileService<T> {
     private final ObjectMapper objectMapper;
-
-    public PersistentFileService() {
+    private final Class<T> modelClass;
+    public PersistentFileService(Class<T> modelClass) {
+        this.modelClass = modelClass;
         this.objectMapper = new ObjectMapper();
         this.objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
-    public VocabularySet loadFromFile(File fileName) {
+    public Optional<T> loadFromFile(Path fileLocation) {
         try {
-            return this.objectMapper.readValue(fileName, VocabularySet.class);
-        } catch (IOException e) {
+            return Optional.of(this.objectMapper.readValue(fileLocation.toFile(), modelClass));
+        } catch (MismatchedInputException e) {
+            return Optional.empty();
+        }
+        catch (IOException e) {
             //TODO handle
             throw new RuntimeException(e);
         }
     }
 
-    public void saveToFile(File fileLocation, VocabularySet vocabularySet)  {
+    public void saveToFile(Path fileLocation, T model)  {
         try {
-            this.objectMapper.writeValue(fileLocation, vocabularySet);
+            this.objectMapper.writeValue(fileLocation.toFile(), model);
         } catch (IOException e) {
             //TODO handle
             throw new RuntimeException(e);

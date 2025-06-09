@@ -4,6 +4,7 @@ import org.example.vocabhub.trainer.model.CheckVocabularyAnswer;
 import org.example.vocabhub.trainer.model.VocabularyPair;
 import org.example.vocabhub.trainer.model.VocabularySet;
 import org.example.vocabhub.trainer.strategies.RandomSelectionStrategy;
+import org.example.vocabhub.trainer.strategies.TopDownStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +27,7 @@ class VocabularyTrainerTest {
         vocabularySet.addVocabularyPair(pair2);
         
         // Initialize the trainer with the created set
-        trainer = new VocabularyTrainer(vocabularySet, new RandomSelectionStrategy());
+        trainer = new VocabularyTrainer(vocabularySet, new TopDownStrategy());
     }
     
     @Test
@@ -49,11 +50,11 @@ class VocabularyTrainerTest {
     @Test
     void testCheckVocabularyCorrectAnswer() {
         // Check correct answer handling
-        VocabularyPair currentPair = trainer.currentVocabularyPair().orElseThrow();
-        CheckVocabularyAnswer result = trainer.checkVocabulary(currentPair.getTarget());
+        String vocabulary = trainer.currentVocabulary().orElseThrow();
+        CheckVocabularyAnswer result = trainer.checkVocabulary(vocabularySet.getVocabularies().getFirst().getTarget());
 
         assertTrue(result.isCorrect());
-        assertEquals(currentPair.getTarget(), result.getRightAnswer());
+        assertEquals(vocabulary, vocabularySet.getVocabularies().getFirst().getSource());
         assertEquals(1, trainer.getLearnedSize());
         assertEquals(1, trainer.getRemainingSize());
     }
@@ -61,11 +62,12 @@ class VocabularyTrainerTest {
     @Test
     void testCheckVocabularyWrongAnswer() {
         // Check incorrect answer handling
-        VocabularyPair currentPair = trainer.currentVocabularyPair().orElseThrow();
+        String vocabulary = trainer.currentVocabulary().orElseThrow();
         CheckVocabularyAnswer result = trainer.checkVocabulary("wrong answer");
 
         assertFalse(result.isCorrect());
-        assertEquals(currentPair.getTarget(), result.getRightAnswer());
+        assertEquals(vocabulary, vocabularySet.getVocabularies().getFirst().getSource());
+        assertEquals(vocabularySet.getVocabularies().getFirst().getTarget(), result.getRightAnswer());
         assertEquals(1, trainer.getFailedSize());
         assertEquals(1, trainer.getRemainingSize());
     }
@@ -73,8 +75,8 @@ class VocabularyTrainerTest {
     @Test
     void testFinishedTraining() {
         // Check training completion after answering all questions
-        trainer.checkVocabulary(trainer.currentVocabularyPair().orElseThrow().getTarget());
-        trainer.checkVocabulary(trainer.currentVocabularyPair().orElseThrow().getTarget());
+        trainer.checkVocabulary(trainer.currentVocabulary().orElseThrow());
+        trainer.checkVocabulary(trainer.currentVocabulary().orElseThrow());
 
         assertTrue(trainer.finished());
         assertEquals(0, trainer.getRemainingSize());
@@ -84,12 +86,12 @@ class VocabularyTrainerTest {
     void testEmptyOptionalWhenNoVocabulariesLeft() {
         // Answer all vocabulary questions to put the trainer in a state 
         // where no vocabularies are left
-        trainer.checkVocabulary(trainer.currentVocabularyPair().orElseThrow().getTarget());
-        trainer.checkVocabulary(trainer.currentVocabularyPair().orElseThrow().getTarget());
+        trainer.checkVocabulary(trainer.currentVocabulary().orElseThrow());
+        trainer.checkVocabulary(trainer.currentVocabulary().orElseThrow());
         
         // Check if currentVocabularyPair() returns Optional.empty()
         assertTrue(trainer.finished());
-        assertTrue(trainer.currentVocabularyPair().isEmpty());
-        assertFalse(trainer.currentVocabularyPair().isPresent());
+        assertTrue(trainer.currentVocabulary().isEmpty());
+        assertFalse(trainer.currentVocabulary().isPresent());
     }
 }
