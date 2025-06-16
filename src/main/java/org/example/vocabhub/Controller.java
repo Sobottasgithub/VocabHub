@@ -3,14 +3,8 @@ package org.example.vocabhub;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.HashMap;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.BarChart;
@@ -22,7 +16,7 @@ import javafx.stage.FileChooser;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.chart.XYChart;
 
-import org.example.vocabhub.persistence.AppdataPersistentFileService;
+import org.example.vocabhub.config.AppConfig;
 import org.example.vocabhub.statistics.StatisticData;
 import org.example.vocabhub.statistics.StatisticDataBinder;
 import org.example.vocabhub.trainer.*;
@@ -39,7 +33,6 @@ import java.util.logging.Level;
 
 public class Controller implements Initializable {
     private static final Logger LOGGER = Logger.getLogger(Controller.class.getName());
-    private final AppdataPersistentFileService appdataPersistentFileService = new AppdataPersistentFileService();
     private StatisticDataBinder statisticDataBinder = new StatisticDataBinder();
 
     // general
@@ -73,7 +66,9 @@ public class Controller implements Initializable {
 
     XYChart.Series dataSeriesIssues = new XYChart.Series();
 
-    private PersistentFileService fileService = new PersistentFileService();
+    private final PersistentFileService<VocabularySet> vocabularyFileService = new PersistentFileService<>(VocabularySet.class);
+    private final PersistentFileService<StatisticDataBinder> statisticsFileService = new PersistentFileService<>(StatisticDataBinder.class);
+    private final AppConfig appConfig = new AppConfig();
     private VocabularySet vocabularies = new VocabularySet();
     private VocabularyTrainer vocabularyTrainer;
     private File selectedFile;
@@ -94,7 +89,7 @@ public class Controller implements Initializable {
         updateStatistics();
 
         LOGGER.log(Level.INFO, "Initializing statisticDataBinder...");
-        Optional<StatisticDataBinder> statisticDataBinderOptional = this.appdataPersistentFileService.loadStatisticsDataBinder();
+        Optional<StatisticDataBinder> statisticDataBinderOptional = this.statisticsFileService.loadFromFile(this.appConfig.getStatisticsFilePath());
         statisticDataBinderOptional.ifPresent(dataBinder -> this.statisticDataBinder = dataBinder);
     }
 
@@ -111,7 +106,8 @@ public class Controller implements Initializable {
             closeFile();
             String selectedFileName = selectedFile.toString();
             uiLabel_loadedFile.setText("Loaded File: " + selectedFileName);
-            vocabularies = this.fileService.loadFromFile(selectedFile);
+            Optional<VocabularySet> result = this.vocabularyFileService.loadFromFile(selectedFile.toPath());
+            this.vocabularyFileService.loadFromFile(selectedFile.toPath()).ifPresent(vocabularyFile -> this.vocabularies = vocabularyFile);
             vocabularyTrainer = new VocabularyTrainer(vocabularies, new RandomSelectionStrategy());
             setAllLanguages(vocabularies.getSourceLanguage(), vocabularies.getTargetLanguage());
             for( VocabularyPair pair : vocabularies.getVocabularies()){
@@ -204,7 +200,7 @@ public class Controller implements Initializable {
     @FXML
     protected void onUiMenuItem_saveVocab() {
         LOGGER.log(Level.INFO, "Save vocable...");
-        new PersistentFileService().saveToFile(selectedFile, vocabularies);
+        this.vocabularyFileService.saveToFile(selectedFile.toPath(), vocabularies);
     }
 
     @FXML
@@ -222,7 +218,7 @@ public class Controller implements Initializable {
                 LOGGER.log(Level.INFO, "File already exists!");
             }
             LOGGER.log(Level.INFO, "Writing to file...");
-            new PersistentFileService().saveToFile(selectedFile, vocabularies);
+            this.vocabularyFileService.saveToFile(selectedFile.toPath(), vocabularies);
         } catch (IOException error) {
             LOGGER.log(Level.SEVERE, "An error has occurred while creating the file: " + selectedFile.toString());
             LOGGER.log(Level.SEVERE, "STACKTRACE: \n" + error);
@@ -241,13 +237,8 @@ public class Controller implements Initializable {
 
     public void initializeChoiceBoxes() {
         LOGGER.log(Level.INFO, "Initialize choiceboxes...");
-        List<String> languages = new ArrayList<>();
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            languages = mapper.readValue(Main.class.getResource("languages.json"), List.class);
-        } catch (DatabindException e) {
-        } catch (StreamReadException e) {
-        } catch (IOException e) {}
+        List<String> languages = appConfig.getLanguages();
+
 
         for(int index = 0; index < languages.size(); index++) {
             uiChoiceBox_baseLanguage.getItems().add(languages.get(index));
@@ -297,7 +288,7 @@ public class Controller implements Initializable {
                     Optional.of(vocabularyTrainer.getFailedSize()),
                     Optional.of(vocabularyTrainer.getLearnedSize()))
             );
-            this.appdataPersistentFileService.saveStatisticDataBinder(this.statisticDataBinder);
+            this.statisticsFileService.saveToFile(this.appConfig.getStatisticsFilePath(), this.statisticDataBinder);
             updateStatistics();
 
             uiButton_nextVocab.setVisible(true);

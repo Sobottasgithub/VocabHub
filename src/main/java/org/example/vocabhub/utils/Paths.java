@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Deprecated
 public class Paths {
     private static final Logger LOGGER = Logger.getLogger(Paths.class.getName());
 

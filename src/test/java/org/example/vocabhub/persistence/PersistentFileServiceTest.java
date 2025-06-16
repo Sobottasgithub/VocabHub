@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PersistentFileServiceTest {
 
-    private PersistentFileService service;
+    private PersistentFileService<VocabularySet> service;
     private File testFile;
     
     @TempDir
@@ -23,7 +23,7 @@ class PersistentFileServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new PersistentFileService();
+        service = new PersistentFileService<VocabularySet>(VocabularySet.class);
         testFile = tempDir.resolve("test-vocab.json").toFile();
     }
 
@@ -42,14 +42,14 @@ class PersistentFileServiceTest {
         originalSet.addVocabularyPair(new VocabularyPair("Auto", "car"));
         
         // When
-        service.saveToFile(testFile, originalSet);
+        service.saveToFile(testFile.toPath(), originalSet);
         
         // Then
         assertTrue(testFile.exists(), "File should have been created");
         assertTrue(testFile.length() > 0, "File should have content");
         
         // When
-        VocabularySet loadedSet = service.loadFromFile(testFile);
+        VocabularySet loadedSet = service.loadFromFile(testFile.toPath()).get();
         
         // Then
         assertNotNull(loadedSet, "Loaded set should not be null");
@@ -74,7 +74,7 @@ class PersistentFileServiceTest {
         
         // Then
         assertThrows(RuntimeException.class, () -> {
-            service.loadFromFile(nonExistentFile);
+            service.loadFromFile(nonExistentFile.toPath());
         }, "Loading a non-existent file should throw an exception");
     }
     
@@ -84,8 +84,8 @@ class PersistentFileServiceTest {
         VocabularySet emptySet = new VocabularySet("German", "English");
         
         // When
-        service.saveToFile(testFile, emptySet);
-        VocabularySet loadedSet = service.loadFromFile(testFile);
+        service.saveToFile(testFile.toPath(), emptySet);
+        VocabularySet loadedSet = service.loadFromFile(testFile.toPath()).get();
         
         // Then
         assertNotNull(loadedSet, "Loaded set should not be null");
@@ -106,7 +106,7 @@ class PersistentFileServiceTest {
         
         // Then
         assertThrows(RuntimeException.class, () -> {
-            service.saveToFile(testFile, vocabularySet);
+            service.saveToFile(testFile.toPath(), vocabularySet);
         }, "Saving to a read-only file should throw an exception");
     }
 }
