@@ -228,6 +228,8 @@ public class Controller implements Initializable {
     @FXML protected void onUiMenuItem_about() {
         LOGGER.log(Level.INFO, "Open about form...");
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setResizable(true);
+        alert.getDialogPane().setPrefSize(480, 20);
         alert.setTitle("VocabHub ~ ABOUT");
         alert.setHeaderText("This app was made by Patrick Schulze");
         alert.setContentText("For further Information contact me at: Patrick.Schulze.ofp@gmail.com");
