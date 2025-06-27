@@ -14,6 +14,11 @@ public class StatisticDataBinder {
 
     public StatisticDataBinder() {}
 
+    private enum StatisticType {
+        CORRECT,
+        MISTAKE
+    }
+
     public int getTotalMistakeCount() {
         return getTotalCountTemplate(StatisticType.MISTAKE);
     }
