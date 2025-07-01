@@ -18,7 +18,8 @@ import javafx.scene.chart.XYChart;
 
 import org.example.vocabhub.config.AppConfig;
 import org.example.vocabhub.statistics.StatisticData;
-import org.example.vocabhub.statistics.StatisticDataBinder;
+import org.example.vocabhub.statistics.LearningHistory;
+import org.example.vocabhub.statistics.StatisticService;
 import org.example.vocabhub.trainer.*;
 import org.example.vocabhub.persistence.PersistentFileService;
 import org.example.vocabhub.trainer.model.CheckVocabularyAnswer;
@@ -33,7 +34,8 @@ import java.util.logging.Level;
 
 public class Controller implements Initializable {
     private static final Logger LOGGER = Logger.getLogger(Controller.class.getName());
-    private StatisticDataBinder statisticDataBinder = new StatisticDataBinder();
+
+    private StatisticService statisticService = new StatisticService();
 
     // general
     @FXML private MenuItem uiMenuItem_closeFile;
@@ -67,7 +69,6 @@ public class Controller implements Initializable {
     XYChart.Series dataSeriesIssues = new XYChart.Series();
 
     private final PersistentFileService<VocabularySet> vocabularyFileService = new PersistentFileService<>(VocabularySet.class);
-    private final PersistentFileService<StatisticDataBinder> statisticsFileService = new PersistentFileService<>(StatisticDataBinder.class);
     private final AppConfig appConfig = new AppConfig();
     private VocabularySet vocabularies = new VocabularySet();
     private VocabularyTrainer vocabularyTrainer;
@@ -88,9 +89,7 @@ public class Controller implements Initializable {
 
         updateStatistics();
 
-        LOGGER.log(Level.INFO, "Initializing statisticDataBinder...");
-        Optional<StatisticDataBinder> statisticDataBinderOptional = this.statisticsFileService.loadFromFile(this.appConfig.getStatisticsFilePath());
-        statisticDataBinderOptional.ifPresent(dataBinder -> this.statisticDataBinder = dataBinder);
+
     }
 
     @FXML
@@ -286,11 +285,7 @@ public class Controller implements Initializable {
             uiLabel_correctVocab.setText("Congrats! You're done! You made " + vocabularyTrainer.getFailedSize() + " mistake(s)!");
             uiLabel_vocabPercentage.setText("0/0");
 
-            this.statisticDataBinder.addData(new StatisticData(
-                    Optional.of(vocabularyTrainer.getFailedSize()),
-                    Optional.of(vocabularyTrainer.getLearnedSize()))
-            );
-            this.statisticsFileService.saveToFile(this.appConfig.getStatisticsFilePath(), this.statisticDataBinder);
+            this.statisticService.addData(vocabularyTrainer.getFailedSize(), vocabularyTrainer.getLearnedSize());
             updateStatistics();
 
             uiButton_nextVocab.setVisible(true);
@@ -341,8 +336,8 @@ public class Controller implements Initializable {
 
     public void updateStatistics() {
         LOGGER.log(Level.INFO, "Update statistics...");
-        int totalTrained =  this.statisticDataBinder.getTotalCorrectCount();
-        int totalMistakes = this.statisticDataBinder.getTotalMistakeCount();
+        int totalTrained =  this.statisticService.getTotalCorrectCount();
+        int totalMistakes = this.statisticService.getTotalMistakeCount();
 
         uiLabel_vocabTrainedTotal.setText("Total Vocable trained: " + totalTrained);
         uiLabel_vocabWrongTotal.setText("Total Vocable wrong: " + totalMistakes);
@@ -356,12 +351,12 @@ public class Controller implements Initializable {
         uiBarChart_mistakes.getData().clear();
         uiBarChart_mistakes.setLegendVisible(false);
 
-        ArrayList<String> dates = this.statisticDataBinder.getDates();
+        ArrayList<String> dates = this.statisticService.getDates();
         for(int index = 0; index < dates.size(); index++) {
             dataSeriesIssues.getData().add(
                     new XYChart.Data(
                             dates.get(index),
-                            this.statisticDataBinder.getMistakeCountByDate(dates.get(index)
+                            this.statisticService.getMistakeCountByDate(dates.get(index)
                             )
                     )
             );

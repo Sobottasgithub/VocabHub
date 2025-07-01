@@ -2,21 +2,20 @@ package org.example.vocabhub.statistics;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.Optional;
 import java.time.LocalDate;
 
 public class StatisticData {
     final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ENGLISH);
 
-    private int mistakeCount = 0;
-    private int correctCount = 0;
-    private String date = dateTimeFormatter.format(LocalDate.now());
+    public int mistakeCount = 0;
+    public int correctCount = 0;
+    public String date = dateTimeFormatter.format(LocalDate.now());
 
     public StatisticData() {}
 
-    public StatisticData(Optional<Integer> mistakes, Optional<Integer> correct) {
-        mistakes.ifPresent(integer -> this.mistakeCount = integer);
-        correct.ifPresent(integer -> this.correctCount = integer);
+    public StatisticData(int mistakes, int correct) {
+        this.mistakeCount = mistakes;
+        this.correctCount = correct;
     }
 
     public void addMistakeCount(int mistakes) {
